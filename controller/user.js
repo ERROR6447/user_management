@@ -20,7 +20,7 @@ const getToken = async (req, res) => {
     return;
   }
 
-  const user = await User.findOne({ where: { email } });
+  const user = await User.findOne({ email });
 
   if (!user) {
     res.status(401).json({ message: "user does not exists" });
@@ -32,7 +32,7 @@ const getToken = async (req, res) => {
     return;
   }
 
-  if (user.is_verified) {
+  if (!user.is_verified) {
     res.status(403).json({
       message: "Please Verify Your email Address to proceed",
     });
@@ -53,7 +53,7 @@ const getToken = async (req, res) => {
 
   const accessToken = jwt.sign(
     {
-      id: user.id,
+      id: user.userId,
       role: user.user_role,
     },
     process.env.JWT_SECRET,
@@ -82,7 +82,7 @@ const signup = async (req, res) => {
     return;
   }
 
-  const findUser = await User.findOne({ where: { email } });
+  const findUser = await User.findOne({ email });
   if (findUser) {
     res.status(400).json({
       message: "User already Exist, Please try again",
@@ -137,13 +137,14 @@ const validateToken = async (req, res) => {
       res.status(401).json({ valid: false, message: "Invalid Token" });
       return;
     }
+    console;
 
-    const user = await User.findOne({ where: { userId: data.id } });
+    const user = await User.findOne({ userId: data.id });
 
     if (!user) {
       res.status(404).json({ message: "InValid Token" });
     }
-
+    console.log(user);
     res
       .status(200)
       .json({ valid: true, role: user.user_role, user: user.userId });
@@ -154,7 +155,7 @@ const verifyEmail = async (req, res) => {
   const { token } = req.params;
 
   try {
-    const user = await User.findOne({ where: { verificationToken: token } });
+    const user = await User.findOne({ verificationToken: token });
 
     if (!user) {
       res.status(404).json({ message: "InValid Token" });
@@ -162,7 +163,7 @@ const verifyEmail = async (req, res) => {
     }
 
     user.verificationToken = null;
-    user.is_verified = ture;
+    user.is_verified = true;
     if (user.Enable_2FactAuth) {
       const secret = speakeasy.generateSecret({ length: 20 });
 
@@ -191,13 +192,19 @@ const verifyEmail = async (req, res) => {
       `${process.env.base_url}:${process.env.PORT}/email-verified?token=${accessToken}`
     );
   } catch (err) {
-    console.log("Error While Verifying email Addres");
+    console.log("Error While Verifying email Addres", err);
     res.status(500).json({ message: "Error While REgistering User" });
   }
 };
 
 const getAllUsers = async (req, res) => {
-  const users = await User.find({});
+  const users = await User.find({ user_role: "student" }).select({
+    _id: 0,
+    userId: 1,
+    username: 1,
+    email: 1,
+    user_role: 1,
+  });
 
   if (!users) {
     res.status(500).json({ message: "Error While Fetching Users" });

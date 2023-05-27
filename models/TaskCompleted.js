@@ -2,7 +2,12 @@ const mongoose = require("mongoose");
 
 const TStatus = new mongoose.Schema({
   statusId: mongoose.Types.ObjectId,
-  taskId: { type: mongoose.Types.ObjectId, ref: "task" },
+  taskId: {
+    type: mongoose.Types.ObjectId,
+    ref: "task",
+    localField: "userId",
+    foreignField: "userId",
+  },
   userId: { type: mongoose.Types.ObjectId, ref: "user" },
   status: {
     type: String,

@@ -18,6 +18,7 @@ const addTask = async (req, res) => {
     res.status(500).json({ message: "Error While Creating Task" });
     return;
   }
+  console.log("Saved Task", SavedTask);
   res.status(201).json({ message: "Task Created Successfully" });
 };
 
@@ -35,6 +36,12 @@ const updateTask = async (req, res) => {
       },
     }
   );
+
+  if (!result) {
+    res.status(500).json({ message: "Error While updating Task" });
+    return;
+  }
+  res.status(200).json({ message: "Task Updated Successfully" });
 };
 
 const deleteTask = async (req, res) => {
@@ -55,7 +62,14 @@ const deleteTask = async (req, res) => {
 };
 
 const getAllTask = async (req, res) => {
-  const tasks = await Task.find({});
+  const tasks = await Task.find({}).select({
+    taskId: 1,
+    _id: 0,
+    title: 1,
+    description: 1,
+    image: 1,
+    visible_to: 1,
+  });
 
   if (!tasks) {
     res.status(500).json({ message: "Error While Fetching Task" });

@@ -3,9 +3,9 @@ const express = require("express");
 const logger = require("morgan");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const userRoute = require("./routes/user");
-const taskRoute = require("./routes/task");
-const statRoute = require("./routes/taskcompleted");
+const userRoute = require("./routes/user.route");
+const taskRoute = require("./routes/task.route");
+const statRoute = require("./routes/taskcompleted.route");
 /* import Routes  */
 
 const app = express();
@@ -18,7 +18,7 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeadler("Access-Control-Allow-Credentials", true);
+  res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Max-Age", 1728000);
   next();
 });
@@ -28,5 +28,21 @@ app.use((req, res, next) => {
 app.use("/", userRoute);
 app.use("/task", taskRoute);
 app.use("/stat", statRoute);
+// var route,
+//   routes = [];
+
+// app._router.stack.forEach(function (middleware) {
+//   if (middleware.route) {
+//     // routes registered directly on the app
+//     routes.push(middleware.route);
+//   } else if (middleware.name === "router") {
+//     // router middleware
+//     middleware.handle.stack.forEach(function (handler) {
+//       route = handler.route;
+//       route && routes.push(route);
+//     });
+//   }
+// });
+// console.log("Routes:", routes);
 
 module.exports = app;

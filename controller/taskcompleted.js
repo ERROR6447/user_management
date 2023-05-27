@@ -1,14 +1,21 @@
 const { ObjectId } = require("mongodb");
 const { Task } = require("../models/Task");
 const { Status } = require("../models/TaskCompleted");
+const { User } = require("../models/user");
 
 const addTaskStatus = async (req, res) => {
   const { userId, status } = req.body;
 
-  const ctask = await Task.findOne({ where: { taskId: req.params.taskId } });
+  const ctask = await Task.findOne({ taskId: req.params.taskId });
 
   if (!ctask) {
     res.status(500).json({ message: "No Task Found" });
+  }
+
+  const user = await User.findOne({ userId });
+
+  if (!user) {
+    res.status(500).json({ message: "No user Found" });
   }
 
   const uStatus = await Status.create({
@@ -29,7 +36,9 @@ const updateTaskStatus = async (req, res) => {
   const { taskId, userId, status } = req.body;
 
   const dtask = await Status.findOne({
-    where: { statusId: req.params.statusId },
+    statusId: req.params.statusId,
+    userId,
+    taskId,
   });
 
   if (!dtask) {
@@ -37,10 +46,17 @@ const updateTaskStatus = async (req, res) => {
     return;
   }
 
-  const ctask = await Task.findOne({ where: { taskId: taskId } });
+  const ctask = await Task.findOne({ taskId: taskId });
 
   if (!ctask) {
     res.status(500).json({ message: "No Task Found" });
+    return;
+  }
+
+  const user = await User.findOne({ userId });
+
+  if (!user) {
+    res.status(500).json({ message: "No User Found" });
     return;
   }
 
@@ -62,10 +78,12 @@ const updateTaskStatus = async (req, res) => {
 };
 
 const deleteTaskStatus = async (req, res) => {
-  const dtask = await Task.findOneAndDelete({ statusId: req.params.statusId });
+  console.log("req.params.statusId: ", req.params.statusId);
+  const dtask = await Task.deleteOne({ statusId: req.params.statusId });
 
   if (!dtask) {
-    res.status(500).json({ message: "Error while updating status" });
+    console.log(dtask);
+    res.status(500).json({ message: "Error while deleting status" });
     return;
   }
 
@@ -73,7 +91,15 @@ const deleteTaskStatus = async (req, res) => {
 };
 
 const getAllTaskStatus = async (req, res) => {
-  const tasksStatus = await Status.find({});
+  const tasksStatus = await Status.find({})
+    .populate(["taskId", "userId"])
+    .select({
+      _id: 0,
+      statusId: 1,
+      taskId: 1,
+      userId: 1,
+      status: 1,
+    });
 
   if (!tasksStatus) {
     res.status(500).json({ message: "Error while Fetching Task Status" });
