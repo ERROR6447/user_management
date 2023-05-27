@@ -5,6 +5,7 @@ const {
   signup,
   validateToken,
   verifyEmail,
+  getAllUsers,
 } = require("../controller/user");
 
 const router = express.Router();
@@ -16,5 +17,7 @@ router.post("/signup", signup);
 router.get("/validate", validateToken);
 
 router.get("/verify-email/:token", verifyEmail);
+
+router.get("/all-users", getAllUsers);
 
 module.exports = router;

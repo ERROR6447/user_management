@@ -8,7 +8,7 @@ const {
   getPasswordHash,
   validatePassword,
   validatePassHash,
-} = require("../util/passwords");
+} = require("../utils/passwords");
 const speakeasy = require("speakeasy");
 const qrcode = require("qrcode");
 
@@ -196,9 +196,21 @@ const verifyEmail = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  const users = await User.find({});
+
+  if (!users) {
+    res.status(500).json({ message: "Error While Fetching Users" });
+    return;
+  }
+
+  res.status(200).json({ users });
+};
+
 module.exports = {
   getToken,
   signup,
   validateToken,
   verifyEmail,
+  getAllUsers,
 };

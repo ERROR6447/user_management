@@ -3,7 +3,9 @@ const express = require("express");
 const logger = require("morgan");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const userRoute = require("../models/user");
+const userRoute = require("./routes/user");
+const taskRoute = require("./routes/task");
+const statRoute = require("./routes/taskcompleted");
 /* import Routes  */
 
 const app = express();
@@ -24,13 +26,7 @@ app.use((req, res, next) => {
 /* add routes here app.use('',routes) */
 
 app.use("/", userRoute);
+app.use("/task", taskRoute);
+app.use("/stat", statRoute);
 
 module.exports = app;
-const emailValidator = require("email-validator");
-const { ObjectId } = require("mongodb");
-const { Task } = require("../models/Task");
-
-const addTask = async (req, res) => {
-  //auth left here
-  const { title, description, image } = req.bodyPa;
-};
