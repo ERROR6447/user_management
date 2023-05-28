@@ -53,7 +53,7 @@ const getToken = async (req, res) => {
 
   const accessToken = jwt.sign(
     {
-      id: user.userId,
+      id: user._id,
       role: user.user_role,
     },
     process.env.JWT_SECRET,
@@ -107,7 +107,7 @@ const signup = async (req, res) => {
   //}
 
   const user = await User.create({
-    userId: new ObjectId().toString(),
+    //userId: new ObjectId().toString(),
     username: username,
     email: email,
     password: passHash,
@@ -139,15 +139,13 @@ const validateToken = async (req, res) => {
     }
     console;
 
-    const user = await User.findOne({ userId: data.id });
+    const user = await User.findOne({ _id: data.id });
 
     if (!user) {
       res.status(404).json({ message: "InValid Token" });
     }
     console.log(user);
-    res
-      .status(200)
-      .json({ valid: true, role: user.user_role, user: user.userId });
+    res.status(200).json({ valid: true, role: user.user_role, user: user._id });
   });
 };
 
@@ -161,7 +159,7 @@ const verifyEmail = async (req, res) => {
       res.status(404).json({ message: "InValid Token" });
       return;
     }
-
+    let QrCodeUrl = null;
     user.verificationToken = null;
     user.is_verified = true;
     if (user.Enable_2FactAuth) {
@@ -169,13 +167,13 @@ const verifyEmail = async (req, res) => {
 
       user.twoFactSecret = secret.base32;
       user.otpauth_url = secret.otpauth_url;
-      const QrCodeUrl = await qrcode.toDataURL(secret.otpauth_url);
+      QrCodeUrl = await qrcode.toDataURL(secret.otpauth_url);
     }
     await user.save();
 
     const accessToken = jwt.sign(
       {
-        id: user.id,
+        id: user._id,
         role: user.user_role,
       },
       process.env.JWT_SECRET,
@@ -188,6 +186,8 @@ const verifyEmail = async (req, res) => {
         expires: new Date(Date.now() + 900000),
       });
     }
+
+    console.log("Email Verified");
     res.redirect(
       `${process.env.base_url}:${process.env.PORT}/email-verified?token=${accessToken}`
     );
@@ -199,8 +199,8 @@ const verifyEmail = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   const users = await User.find({ user_role: "student" }).select({
-    _id: 0,
-    userId: 1,
+    _id: 1,
+    //userId: 1,
     username: 1,
     email: 1,
     user_role: 1,

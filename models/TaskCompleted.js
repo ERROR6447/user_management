@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const TStatus = new mongoose.Schema({
-  statusId: mongoose.Types.ObjectId,
+  //statusId: mongoose.Types.ObjectId,
   taskId: {
     type: mongoose.Types.ObjectId,
     ref: "task",

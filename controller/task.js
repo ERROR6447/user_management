@@ -1,13 +1,14 @@
 const emailValidator = require("email-validator");
 const { ObjectId } = require("mongodb");
 const { Task } = require("../models/Task");
+const { addTaskStatus } = require("./taskcompleted");
 
 const addTask = async (req, res) => {
   //auth left here
   const { title, description, image, visible_to } = req.body;
 
   const SavedTask = await Task.create({
-    taskId: new ObjectId().toString(),
+    //taskId: new ObjectId().toString(),
     title,
     description,
     image,
@@ -26,7 +27,7 @@ const updateTask = async (req, res) => {
   const { title, description, image, visible_to } = req.body;
 
   const result = await Task.updateOne(
-    { taskId: req.params.taskId },
+    { _id: req.params.taskId },
     {
       $set: {
         title,
@@ -48,7 +49,7 @@ const deleteTask = async (req, res) => {
   try {
     const taskId = req.params.taskId;
 
-    const dTask = await Task.findOneAndDelete({ taskId: taskId });
+    const dTask = await Task.findOneAndDelete({ _id: taskId });
     if (!dTask) {
       res.status(500).json({ message: "Error While Deleting Task" });
       return;
@@ -63,8 +64,7 @@ const deleteTask = async (req, res) => {
 
 const getAllTask = async (req, res) => {
   const tasks = await Task.find({}).select({
-    taskId: 1,
-    _id: 0,
+    _id: 1,
     title: 1,
     description: 1,
     image: 1,
@@ -79,9 +79,22 @@ const getAllTask = async (req, res) => {
   res.status(200).json({ tasks });
 };
 
+const getTaskById = async (req, res) => {
+  const utask = await Task.find({
+    visible_to: new ObjectId(req.params.userId),
+  });
+
+  if (!utask) {
+    res.status(500).json({ message: "Error While Fetching user task" });
+  }
+
+  res.status(200).json({ user_tasks: utask });
+};
+
 module.exports = {
   getAllTask,
   addTask,
   updateTask,
   deleteTask,
+  getTaskById,
 };

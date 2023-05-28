@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const task = new mongoose.Schema({
-  taskId: mongoose.Types.ObjectId,
+  //taskId: mongoose.Types.ObjectId,
   title: String,
   description: String,
   image: String,
